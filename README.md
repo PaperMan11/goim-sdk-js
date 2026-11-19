@@ -170,6 +170,8 @@ interface GoimLogConfig {
 | `sendText(target, text, { clientMsgID? })` | 构造并发送文本消息（contentType=101），返回 `SendMsgResp` |
 | `send(msg)` | 发送现成 `MsgData`（图片 / 自定义消息自行补齐字段） |
 | `historyLocal(conversationID, ownerUserID?)` | 本地 IndexedDB 历史消息，需先等待 SyncFinish |
+| `getHistoryMsgs(conversationID, beforeSeq?, count?)` | 服务端分页历史（降序），返回 `HistoryMsgsPage` 并写入本地缓存；翻页传上一页 `oldestSeq - 1` |
+| `getNewerMsgs(conversationID, afterSeq?, count?)` | 服务端增量消息（升序），补齐比本地更新的消息并写入本地缓存 |
 | `pullBySeq(conversationID, begin, end, num?, order?, userID?)` | 服务端按 seq 拉取，`order` 0 升序 / 1 降序 |
 | `markRead(conversationID, hasReadSeq, seqs?)` | 标记已读 |
 | `revoke(conversationID, seq)` | 撤回消息 |
@@ -181,6 +183,8 @@ interface GoimLogConfig {
 | `listLocal(ownerUserID?)` | 本地 IndexedDB 会话列表 |
 | `getAll(ownerUserID?)` | HTTP 全量会话（服务端权威数据） |
 | `get(conversationID, ownerUserID?)` | 单个会话详情 |
+| `unreadCount(conversationID)` | 单会话本地未读数（离线可用，不发网络请求） |
+| `unreadTotal()` | 全部业务会话本地未读总和（不含 `n_` 通知会话） |
 
 `users`
 
@@ -194,6 +198,26 @@ interface GoimLogConfig {
 | 方法 | 说明 |
 | --- | --- |
 | `getGroupsInfo(groupIDs)` | 批量拉取群资料 |
+| `createGroup(groupInfo, memberUserIDs?, adminUserIDs?, ownerUserID?, sendMessage?)` | 建群，返回 `GroupInfo` |
+| `setGroupInfo(groupInfo)` | 修改群资料（`GroupInfoForSet`） |
+| `setGroupInfoEx(groupID, options)` | 修改群资料扩展项（字段均为 `{ value }` 形态） |
+| `getGroupAbstractInfo(groupIDs)` | 群摘要（成员数 / 成员列表 hash） |
+| `joinGroup(groupID, reqMessage?, joinSource?, inviterUserID?, ex?)` | 主动入群 / 邀请入群 |
+| `quitGroup(groupID, userID?)` | 退群，`userID` 默认当前用户 |
+| `groupApplicationResponse(groupID, fromUserID, handledMsg, handleResult)` | 处理入群申请（`GroupApplicationResult`） |
+| `transferGroup(groupID, newOwnerUserID, oldOwnerUserID?)` | 转让群主 |
+| `dismissGroup(groupID, deleteMember?, sendMessage?)` | 解散群 |
+| `getGroupMembersInfo(groupID, userIDs)` | 批量拉取成员资料 |
+| `getGroupMemberList(groupID, pagination?, filter?, keyword?)` | 成员分页列表，返回 `{ total, members }` |
+| `getJoinedGroupList(userID?, pagination?)` | 已加入群列表，返回 `{ total, groups }` |
+| `kickGroup(groupID, kickedUserIDs, reason?, sendMessage?)` | 踢人 |
+| `inviteUserToGroup(groupID, invitedUserIDs, reason?, sendMessage?)` | 邀请入群 |
+| `muteGroupMember(groupID, userID, mutedSeconds)` | 禁言成员 |
+| `muteGroup(groupID)` / `cancelMuteGroup(groupID)` | 全员禁言 / 解除全员禁言 |
+| `cancelMuteGroupMember(groupID, userID)` | 解除成员禁言 |
+| `setGroupMemberInfo(members)` | 批量修改成员资料 / 角色（`SetGroupMemberInfo[]`） |
+
+相关常量：`GroupRoleLevel`（20/60/100）、`GroupJoinSource`（1–4）、`GroupApplicationResult`（1/-1）。分页参数为 `{ pageNumber, showNumber }`，默认 `{ pageNumber: 1, showNumber: 20 }`。
 
 `SendTarget`：`{ sessionType, userID?, groupID? }`，单聊填 `userID`，群聊填 `groupID`（`sessionType=3`）。
 

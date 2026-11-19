@@ -3,6 +3,7 @@ import {
   ContentType,
   MsgFrom,
   SessionType,
+  type HistoryMsgsPage,
   type MsgData,
   type PullMsgsResult,
   type SendMsgResp,
@@ -40,6 +41,25 @@ export class MessagesModule extends ModuleBase {
     ownerUserID = this.goim.requireUserID(),
   ): Promise<MsgData[]> {
     return listLocalMessages(ownerUserID, conversationID);
+  }
+
+  // 服务端分页历史（降序，最新在前），结果会写入本地缓存。
+  // 第 1 页传 beforeSeq<=0；继续向更早翻页传上一页 oldestSeq - 1（服务端区间为闭区间）
+  getHistoryMsgs(
+    conversationID: string,
+    beforeSeq = 0,
+    count = 20,
+  ): Promise<HistoryMsgsPage> {
+    return this.goim.call('GetHistoryMsgs', [conversationID, beforeSeq, count]);
+  }
+
+  // 服务端增量消息（升序），补齐比本地更新的消息，结果会写入本地缓存
+  getNewerMsgs(
+    conversationID: string,
+    afterSeq = 0,
+    count = 20,
+  ): Promise<HistoryMsgsPage> {
+    return this.goim.call('GetNewerMsgs', [conversationID, afterSeq, count]);
   }
 
   // 服务端按 seq 拉取；order: 0 升序 / 1 降序
