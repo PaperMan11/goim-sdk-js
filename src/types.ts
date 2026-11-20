@@ -90,7 +90,8 @@ export const MsgFrom = {
   System: 200,
 } as const;
 
-// 消息状态（对齐 constant.MsgStatus*）
+// 消息状态（对齐 goim docs/protocol-message.md §1：
+// 1 发送中 / 2 发送成功 / 3 发送失败 / 4 已删除 / 5 已过滤）
 export const MsgStatus = {
   NotExist: 0,
   Sending: 1,
@@ -245,8 +246,7 @@ export const SyncState = {
   Failed: 3,
 } as const;
 
-export type TransportStatusValue =
-  (typeof TransportStatus)[keyof typeof TransportStatus];
+export type TransportStatusValue = (typeof TransportStatus)[keyof typeof TransportStatus];
 export type SyncStateValue = (typeof SyncState)[keyof typeof SyncState];
 
 export interface OfflinePushInfo {
