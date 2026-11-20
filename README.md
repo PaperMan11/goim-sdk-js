@@ -221,6 +221,43 @@ interface GoimLogConfig {
 
 `SendTarget`：`{ sessionType, userID?, groupID? }`，单聊填 `userID`，群聊填 `groupID`（`sessionType=3`）。
 
+## 消息协议
+
+协议来源：`goim/docs/protocol-message.md`。SDK 在 `src/protocol/` 内提供类型定义、解析与构造工具，均从包入口导出。
+
+**常量**（`src/types.ts`）：
+
+- `SessionType`：`1` 单聊 / `2` 写扩散群聊 / `3` 读扩散群聊 / `4` 通知会话
+- `ContentType`：101–122 基础消息、200–203 通用消息、1201–2200 通知消息
+- `MsgFrom`（100/200）、`MsgStatus`（0–5）、`PlatformID`（1–12）
+- `MsgOption`（options 键）、`MsgOptionPreset`（普通消息 / Typing / 撤回 / 仅在线 / 系统通知组合）
+- `GroupType`、`GroupStatus`、`NeedVerification`、`GlobalRecvMsgOpt`、`AtType`、`AtAllTag`
+
+**content 解析**：`MsgData.content` 是 JSON 字符串，按 contentType 解析：
+
+```ts
+import { parseContent, parseTextContent, ContentType } from '@goim/web-sdk';
+
+const text = parseTextContent(msg.content);          // 101 / 106
+const quote = parseContent(ContentType.Quote, msg.content); // 按类型收窄
+```
+
+支持 101/102/103/104/105/106/107/108/109/110/111/113/114/117/118/119/120/202/203；未知类型回退为普通 JSON.parse。
+
+**通知解析**（contentType ≥ 1000）：content 为 `{"detail":"<Tips JSON 字符串>"}`，需二次解析：
+
+```ts
+import { parseNotificationMsg, type GroupCreatedTips } from '@goim/web-sdk';
+
+const tips = parseNotificationMsg<GroupCreatedTips>(event.payload.msg);
+```
+
+已定义 1201–1210 好友、1303–1308 用户、1501–1520 群组、1300/1701–1704 会话、1652/2101/2102/2200 消息类 Tips。
+
+**content 构造**：`buildTextContent`、`buildAtTextContent`、`buildQuoteContent`、`buildTypingContent`、`buildCustomContent`、`buildNotificationContent`。`messages.sendText` 已按协议生成 `{"text":"...","atUsers":[]}`，并附带普通消息的默认 `options`。
+
+**会话 ID**：`buildC2CConversationID`、`buildGroupConversationID`（`readDiffusion` 决定 `g_`/`sg_`）、`buildNotificationConversationID`、`conversationKind`、`isNotificationConversation`、`parseConversationID`，前缀规则见 `ConversationPrefix`。
+
 ## 事件
 
 事件对象结构：

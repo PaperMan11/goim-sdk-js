@@ -12,6 +12,7 @@ export { EventType, EVENT_NAMES, eventNameOf, parseEvent } from './events';
 export type { GoimEvent, EventTypeValue } from './events';
 
 export * from './types';
+export * from './protocol';
 
 export { loadGoimSdk } from './loader';
 export type { LoadOptions } from './loader';

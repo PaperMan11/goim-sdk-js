@@ -1,7 +1,9 @@
 import { listLocalMessages } from '../idb';
+import { buildTextContent } from '../protocol/content';
 import {
   ContentType,
   MsgFrom,
+  MsgOptionPreset,
   SessionType,
   type HistoryMsgsPage,
   type MsgData,
@@ -104,7 +106,9 @@ export class MessagesModule extends ModuleBase {
       sessionType: target.sessionType,
       msgFrom: MsgFrom.User,
       contentType: ContentType.Text,
-      content: text,
+      // 协议要求 content 为 JSON 字符串：{"text":"...","atUsers":[]}
+      content: buildTextContent(text),
+      options: { ...MsgOptionPreset.Normal },
       createTime: now,
       sendTime: now,
     };

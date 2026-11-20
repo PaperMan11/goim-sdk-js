@@ -2,12 +2,87 @@
 
 export const SessionType = {
   C2C: 1,
-  Group: 3,
+  WriteGroup: 2,
+  ReadGroup: 3,
+  Group: 3, // 群聊（读扩散），兼容旧命名
+  Notification: 4,
 } as const;
 
+// 内容类型（对齐 goim pkg/protocol/constant/content_type.go）
 export const ContentType = {
   Text: 101,
-  Image: 102,
+  Picture: 102,
+  Image: 102, // 兼容旧命名
+  Voice: 103,
+  Video: 104,
+  File: 105,
+  AtText: 106,
+  Merger: 107,
+  Card: 108,
+  Location: 109,
+  Custom: 110,
+  Revoke: 111,
+  Typing: 113,
+  Quote: 114,
+  AdvancedText: 117,
+  MarkdownText: 118,
+  CustomNotTriggerConversation: 119,
+  CustomOnlineOnly: 120,
+  ReactionMessageModifier: 121,
+  ReactionMessageDeleter: 122,
+  Common: 200,
+  GroupMsg: 201,
+  SignalMsg: 202,
+  CustomNotification: 203,
+
+  FriendApplicationApprovedNotification: 1201,
+  FriendApplicationRejectedNotification: 1202,
+  FriendApplicationNotification: 1203,
+  FriendAddedNotification: 1204,
+  FriendDeletedNotification: 1205,
+  FriendRemarkSetNotification: 1206,
+  BlackAddedNotification: 1207,
+  BlackDeletedNotification: 1208,
+  FriendInfoUpdatedNotification: 1209,
+  FriendsInfoUpdateNotification: 1210,
+  ConversationChangeNotification: 1300,
+  UserInfoUpdatedNotification: 1303,
+  UserStatusChangeNotification: 1304,
+  UserCommandAddNotification: 1305,
+  UserCommandDeleteNotification: 1306,
+  UserCommandUpdateNotification: 1307,
+  UserSubscribeOnlineStatusNotification: 1308,
+  OANotification: 1400,
+  GroupCreatedNotification: 1501,
+  GroupInfoSetNotification: 1502,
+  JoinGroupApplicationNotification: 1503,
+  MemberQuitNotification: 1504,
+  GroupApplicationAcceptedNotification: 1505,
+  GroupApplicationRejectedNotification: 1506,
+  GroupOwnerTransferredNotification: 1507,
+  MemberKickedNotification: 1508,
+  MemberInvitedNotification: 1509,
+  MemberEnterNotification: 1510,
+  GroupDismissedNotification: 1511,
+  GroupMemberMutedNotification: 1512,
+  GroupMemberCancelMutedNotification: 1513,
+  GroupMutedNotification: 1514,
+  GroupCancelMutedNotification: 1515,
+  GroupMemberInfoSetNotification: 1516,
+  GroupMemberSetToAdminNotification: 1517,
+  GroupMemberSetToOrdinaryUserNotification: 1518,
+  GroupInfoSetAnnouncementNotification: 1519,
+  GroupInfoSetNameNotification: 1520,
+  SuperGroupUpdateNotification: 1651,
+  MsgDeleteNotification: 1652,
+  ConversationPrivateChatNotification: 1701,
+  ConversationUnreadNotification: 1702,
+  ClearConversationNotification: 1703,
+  ConversationDeleteNotification: 1704,
+  BusinessNotification: 2001,
+  MsgRevokeNotification: 2101,
+  DeleteMsgsNotification: 2102,
+  HasReadReceipt: 2200,
 } as const;
 
 export const MsgFrom = {
@@ -15,11 +90,146 @@ export const MsgFrom = {
   System: 200,
 } as const;
 
+// 消息状态（对齐 constant.MsgStatus*）
 export const MsgStatus = {
-  Success: 1,
-  Sending: 2,
-  Failed: 3,
-  Revoked: 4,
+  NotExist: 0,
+  Sending: 1,
+  SendSuccess: 2,
+  SendFailed: 3,
+  HasDeleted: 4,
+  Filtered: 5,
+} as const;
+
+// 发送者平台 ID（对齐 constant.PlatformID*）
+export const PlatformID = {
+  IOS: 1,
+  Android: 2,
+  Windows: 3,
+  OSX: 4,
+  Web: 5,
+  MiniWeb: 6,
+  Linux: 7,
+  APad: 8,
+  IPad: 9,
+  Admin: 10,
+  HarmonyOS: 11,
+  Bot: 12,
+} as const;
+
+// 消息选项键（对齐 constant.Is*）
+export const MsgOption = {
+  History: 'history',
+  Persistent: 'persistent',
+  OfflinePush: 'offlinePush',
+  UnreadCount: 'unreadCount',
+  ConversationUpdate: 'conversationUpdate',
+  SenderSync: 'senderSync',
+  NotPrivate: 'notPrivate',
+  SenderConversationUpdate: 'senderConversationUpdate',
+  SenderNotificationPush: 'senderNotificationPush',
+  ReactionFromCache: 'reactionFromCache',
+  IsNotNotification: 'isNotNotification',
+  IsSendMsg: 'isSendMsg',
+} as const;
+
+// 常用 options 组合（对应 protocol-message.md §5 的典型组合）
+export const MsgOptionPreset = {
+  // 普通聊天消息
+  Normal: {
+    history: true,
+    persistent: true,
+    offlinePush: true,
+    unreadCount: true,
+    conversationUpdate: true,
+    senderSync: true,
+    isSendMsg: true,
+  },
+  // 正在输入：不落库、不计未读、不更新会话
+  Typing: {
+    history: false,
+    persistent: false,
+    offlinePush: false,
+    unreadCount: false,
+    conversationUpdate: false,
+    senderSync: false,
+    isNotNotification: true,
+    isSendMsg: false,
+  },
+  // 撤回消息
+  Revoke: {
+    history: false,
+    persistent: true,
+    offlinePush: false,
+    unreadCount: false,
+    conversationUpdate: true,
+    senderSync: true,
+    isSendMsg: false,
+  },
+  // 仅在线自定义消息
+  OnlineOnly: {
+    history: false,
+    persistent: false,
+    offlinePush: false,
+    unreadCount: false,
+    conversationUpdate: false,
+    senderSync: false,
+    isSendMsg: true,
+  },
+  // 系统通知（不落未读）
+  SystemNotification: {
+    history: true,
+    persistent: true,
+    offlinePush: true,
+    unreadCount: false,
+    conversationUpdate: true,
+    notPrivate: true,
+    isSendMsg: true,
+  },
+} as const;
+
+// 群类型 / 群状态 / 加群验证 / 全局消息接收 / @类型
+export const GroupType = {
+  Normal: 0,
+  Super: 1,
+  Work: 2,
+} as const;
+
+export const GroupStatus = {
+  Normal: 0,
+  Muted: 1,
+  Dismissed: 2,
+  MutedAll: 3,
+  NoPrivateChat: 4,
+} as const;
+
+export const NeedVerification = {
+  ApplyNeedVerifyInviteDirect: 0,
+  AllNeedVerify: 1,
+  DirectJoin: 2,
+} as const;
+
+export const GlobalRecvMsgOpt = {
+  Receive: 0,
+  NotReceive: 1,
+  ReceiveNotNotify: 2,
+} as const;
+
+export const AtType = {
+  Normal: 0,
+  AtMe: 1,
+  AtAll: 2,
+  AtAllAtMe: 3,
+  GroupNotification: 4,
+} as const;
+
+// @所有人标记（MsgData.atUserIDList / atUsers.atUserID 中使用）
+export const AtAllTag = 'AtAllTag';
+
+// 通知可靠性级别
+export const NotificationReliability = {
+  Unreliable: 1,
+  ReliableNoMsg: 2,
+  ReliableMsg: 3,
 } as const;
 
 export const TransportStatus = {
@@ -145,6 +355,8 @@ export interface UserInfo {
   faceURL?: string;
   ex?: string;
   createTime?: number;
+  appMangerLevel?: number;
+  globalRecvMsgOpt?: number;
 }
 
 export interface GroupInfo {
