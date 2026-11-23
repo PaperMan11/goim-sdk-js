@@ -13,6 +13,7 @@ import type {
   GroupMemberFullInfo,
   GroupMemberPage,
   GroupPage,
+  LocalDataStats,
   MsgData,
   MsgPage,
 } from '../types';
@@ -163,6 +164,56 @@ export class LocalModule extends ModuleBase {
 
   isBlocked(userID: string): Promise<boolean> {
     return this.goim.call('Local.IsBlocked', [userID]);
+  }
+
+  // ———— 搜索（大小写不敏感子串匹配）————
+
+  // 匹配会话 ID / 对方昵称 / 群名 / 摘要文本
+  async searchConversations(keyword: string, limit = 50): Promise<ConversationPage> {
+    const page = await this.goim.call<RawPage<Conversation> | null>(
+      'Local.SearchConversations',
+      [keyword, limit],
+    );
+    return normalizePage(page);
+  }
+
+  // 单会话内搜索消息（按 seq 倒序）
+  async searchMsgs(
+    conversationID: string,
+    keyword: string,
+    limit = 30,
+  ): Promise<MsgPage> {
+    const page = await this.goim.call<MsgPage | null>('Local.SearchMsgs', [
+      conversationID,
+      keyword,
+      limit,
+    ]);
+    return normalizeMsgPage(page);
+  }
+
+  // 匹配 userID / 昵称 / 备注
+  async searchFriends(keyword: string, limit = 50): Promise<FriendPage> {
+    const page = await this.goim.call<RawPage<FriendInfo> | null>(
+      'Local.SearchFriends',
+      [keyword, limit],
+    );
+    return normalizePage(page);
+  }
+
+  // 匹配 groupID / 群名
+  async searchGroups(keyword: string, limit = 50): Promise<GroupPage> {
+    const page = await this.goim.call<RawPage<GroupInfo> | null>(
+      'Local.SearchGroups',
+      [keyword, limit],
+    );
+    return normalizePage(page);
+  }
+
+  // ———— 统计 ————
+
+  // 本地缓存条数（会话/消息/好友/黑名单/群/群成员）
+  stats(): Promise<LocalDataStats> {
+    return this.goim.call('Local.Stats', []);
   }
 
   // ———— 群 / 群成员 ————

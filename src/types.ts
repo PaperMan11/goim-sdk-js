@@ -546,3 +546,13 @@ export interface ConversationSeqs {
   serverMaxSeq?: number;
 }
 
+// 本地缓存条数统计
+export interface LocalDataStats {
+  conversations: number;
+  messages: number;
+  friends: number;
+  blacks: number;
+  groups: number;
+  groupMembers: number;
+}
+

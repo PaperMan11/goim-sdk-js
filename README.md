@@ -201,10 +201,15 @@ interface GoimLogConfig {
 | `getMsgByClientID(conversationID, clientMsgID)` | 按客户端消息 ID 直读（重发去重 / 回执匹配） |
 | `listFriends(offset?, limit?)` / `getFriend(userID)` | 本地好友分页 / 单条 |
 | `listBlacks(offset?, limit?)` / `isBlocked(userID)` | 本地黑名单分页 / 是否存在 |
+| `searchConversations(keyword, limit?)` | 会话搜索（匹配会话 ID / 对方昵称 / 群名 / 摘要文本） |
+| `searchMsgs(conversationID, keyword, limit?)` | 单会话消息搜索（按 seq 倒序） |
+| `searchFriends(keyword, limit?)` | 好友搜索（匹配 userID / 昵称 / 备注） |
+| `searchGroups(keyword, limit?)` | 群搜索（匹配 groupID / 群名） |
+| `stats()` | 本地缓存条数统计 `LocalDataStats`（会话/消息/好友/黑名单/群/群成员） |
 | `listGroups(offset?, limit?)` / `getGroup(groupID)` | 本地群分页 / 单条 |
 | `listGroupMembers(groupID, offset?, limit?)` / `getGroupMember(groupID, userID)` | 本地群成员分页 / 单条 |
 
-分页参数：实体列表 `limit` 默认 50、上限 200；消息 `limit` 默认 30、上限 100。未登录时 core 返回 `NotLoggedIn` 错误（未转为空结果）。
+分页参数：实体列表 `limit` 默认 50、上限 200；消息 `limit` 默认 30、上限 100。搜索为大小写不敏感子串匹配，实体搜索返回 `total + hasMore`，消息搜索不带 `total`。未登录时 core 返回 `NotLoggedIn` 错误（未转为空结果）；空关键字由 core 返回明确错误。
 
 `users`
 
