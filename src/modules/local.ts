@@ -254,4 +254,18 @@ export class LocalModule extends ModuleBase {
     );
     return member ?? undefined;
   }
+
+  // ———— 本地清理（仅本机，不影响服务端）————
+
+  // 删除本地 seq <= upToSeq 的消息并落 floor（只增不减），返回删除条数。
+  // floor 用于阻止自动同步把已清理的历史重新拉回；显式历史请求不受限。
+  purgeMsgs(conversationID: string, upToSeq: number): Promise<number> {
+    return this.goim.call('Local.PurgeMsgs', [conversationID, upToSeq]);
+  }
+
+  // 清空当前账号全部本地缓存：逐会话写 floor → 清消息 → 清实体表；
+  // 保留 seqs/versions 同步游标、SDK meta 与登录态（不登出）。
+  clearLocalData(): Promise<void> {
+    return this.goim.call('Local.ClearLocalData', []);
+  }
 }
