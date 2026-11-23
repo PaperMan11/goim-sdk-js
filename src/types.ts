@@ -469,3 +469,80 @@ export const GroupApplicationResult = {
   Reject: -1,
 } as const;
 
+// ———— 本地数据（LocalDataMgr）相关结构，对齐 goim-sdk-core pkg/model/local.go ————
+
+export interface PublicUserInfo {
+  userID?: string;
+  nickname?: string;
+  faceURL?: string;
+  ex?: string;
+}
+
+export interface FriendInfo {
+  ownerUserID?: string;
+  remark?: string;
+  createTime?: number;
+  friendUser?: UserInfo;
+  addSource?: number;
+  operatorUserID?: string;
+  ex?: string;
+  isPinned?: boolean;
+}
+
+export interface BlackInfo {
+  ownerUserID?: string;
+  createTime?: number;
+  blackUserInfo?: PublicUserInfo;
+  addSource?: number;
+  operatorUserID?: string;
+  ex?: string;
+}
+
+export interface ConversationPage {
+  items: Conversation[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface FriendPage {
+  items: FriendInfo[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface BlackPage {
+  items: BlackInfo[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface GroupPage {
+  items: GroupInfo[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface GroupMemberPage {
+  items: GroupMemberFullInfo[];
+  total: number;
+  hasMore: boolean;
+}
+
+// 本地消息分页（seq 游标，无 total）
+export interface MsgPage {
+  items: MsgData[];
+  oldestSeq: number;
+  newestSeq: number;
+  hasMore: boolean;
+}
+
+// 单会话本地/服务端 seq 边界快照
+export interface ConversationSeqs {
+  conversationID?: string;
+  localMinSeq?: number;
+  localMaxSeq?: number;
+  hasReadSeq?: number;
+  serverMinSeq?: number;
+  serverMaxSeq?: number;
+}
+

@@ -180,11 +180,31 @@ interface GoimLogConfig {
 
 | 方法 | 说明 |
 | --- | --- |
-| `listLocal(ownerUserID?)` | 本地 IndexedDB 会话列表 |
+| `listLocal(ownerUserID?)` | 本地 IndexedDB 会话列表（轻量直读） |
 | `getAll(ownerUserID?)` | HTTP 全量会话（服务端权威数据） |
-| `get(conversationID, ownerUserID?)` | 单个会话详情 |
-| `unreadCount(conversationID)` | 单会话本地未读数（离线可用，不发网络请求） |
-| `unreadTotal()` | 全部业务会话本地未读总和（不含 `n_` 通知会话） |
+| `get(conversationID, ownerUserID?)` | 服务端单个会话详情（`ConvMgr.GetConversation`） |
+
+> 本地未读 / 单会话本地直读已收敛到 `goim.local`（对应 core `Client.Local()`）。
+
+`local`（本地缓存只读门面，不发网络请求）
+
+| 方法 | 说明 |
+| --- | --- |
+| `listConversations(offset?, limit?)` | 本地会话分页（置顶优先 + 最新消息时间倒序），返回 `ConversationPage` |
+| `getConversation(conversationID)` | 单会话直读，不存在返回 `undefined` |
+| `getConversations(conversationIDs)` | 批量直读（顺序与入参一致） |
+| `getConversationSeqs(conversationID)` | 本地/服务端 seq 边界快照 `ConversationSeqs` |
+| `unreadCount(conversationID)` / `unreadTotal()` | 本地推导未读（不含 `n_` 通知会话） |
+| `listMsgs(conversationID, beforeSeq?, limit?)` | 本地消息降序分页，返回 `MsgPage`（继续翻页传 `oldestSeq - 1`） |
+| `listMsgsAfter(conversationID, afterSeq?, limit?)` | 本地消息升序分页 |
+| `getMsg(conversationID, seq)` | 按 seq 直读，不存在返回 `undefined` |
+| `getMsgByClientID(conversationID, clientMsgID)` | 按客户端消息 ID 直读（重发去重 / 回执匹配） |
+| `listFriends(offset?, limit?)` / `getFriend(userID)` | 本地好友分页 / 单条 |
+| `listBlacks(offset?, limit?)` / `isBlocked(userID)` | 本地黑名单分页 / 是否存在 |
+| `listGroups(offset?, limit?)` / `getGroup(groupID)` | 本地群分页 / 单条 |
+| `listGroupMembers(groupID, offset?, limit?)` / `getGroupMember(groupID, userID)` | 本地群成员分页 / 单条 |
+
+分页参数：实体列表 `limit` 默认 50、上限 200；消息 `limit` 默认 30、上限 100。未登录时 core 返回 `NotLoggedIn` 错误（未转为空结果）。
 
 `users`
 

@@ -7,6 +7,7 @@ import { loadGoimSdk, type LoadOptions } from './loader';
 import { AuthModule } from './modules/auth';
 import { ConversationsModule } from './modules/conversations';
 import { GroupsModule } from './modules/groups';
+import { LocalModule } from './modules/local';
 import { MessagesModule } from './modules/messages';
 import { UsersModule } from './modules/users';
 import type { SyncStateValue, TransportStatusValue } from './types';
@@ -60,6 +61,7 @@ export class Goim {
   readonly messages: MessagesModule;
   readonly users: UsersModule;
   readonly groups: GroupsModule;
+  readonly local: LocalModule;
 
   private constructor(
     private readonly bridge: GoimSdkBridge,
@@ -70,6 +72,7 @@ export class Goim {
     this.messages = new MessagesModule(this);
     this.users = new UsersModule(this);
     this.groups = new GroupsModule(this);
+    this.local = new LocalModule(this);
     this.bindEvents();
   }
 

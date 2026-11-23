@@ -4,10 +4,11 @@
 // detail 为二次编码的字符串。解析时先解外层拿 detail，再 JSON.parse(detail) 得到 Tips。
 
 import type {
+  FriendInfo,
   GroupInfo,
   GroupMemberFullInfo,
   MsgData,
-  UserInfo,
+  PublicUserInfo,
 } from '../types';
 import { tryParseJSON } from './content';
 
@@ -20,24 +21,6 @@ export interface NotificationElem {
 export interface FromToUserID {
   fromUserID?: string;
   toUserID?: string;
-}
-
-export interface PublicUserInfo {
-  userID?: string;
-  nickname?: string;
-  faceURL?: string;
-  ex?: string;
-}
-
-export interface FriendInfo {
-  ownerUserID?: string;
-  remark?: string;
-  createTime?: number;
-  friendUser?: UserInfo;
-  addSource?: number;
-  operatorUserID?: string;
-  ex?: string;
-  isPinned?: boolean;
 }
 
 export interface FriendRequest {
