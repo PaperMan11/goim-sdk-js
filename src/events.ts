@@ -57,6 +57,7 @@ export const EventType = {
   MsgRevoked: 51,
   GroupMemberInvited: 52,
   ConversationCreated: 53,
+  TokenRefreshFailed: 54,
 } as const;
 
 export type EventTypeValue = (typeof EventType)[keyof typeof EventType];
@@ -117,6 +118,7 @@ export const EVENT_NAMES: readonly string[] = [
   'EventMsgRevoked',
   'EventGroupMemberInvited',
   'EventConversationCreated',
+  'EventTokenRefreshFailed',
 ];
 
 export function eventNameOf(type: number): string {
