@@ -93,6 +93,24 @@ export class MessagesModule extends ModuleBase {
     return this.goim.call('MsgMgr.RevokeMsg', [conversationID, seq]);
   }
 
+  // 删除消息：默认仅自己不可见（IsSyncSelf=true / IsSyncOther=false）。
+  // 服务端会对本人 del_list 追加 userID，并给自己发 2102 通知；
+  // IsSyncOther=true 为「对所有人删除」（群管理员能力）。
+  delete(
+    conversationID: string,
+    seqs: number[],
+    opt: { isSyncSelf?: boolean; isSyncOther?: boolean } = {},
+  ): Promise<void> {
+    return this.goim.call('MsgMgr.DeleteMsgs', [
+      conversationID,
+      seqs,
+      {
+        IsSyncSelf: opt.isSyncSelf ?? true,
+        IsSyncOther: opt.isSyncOther ?? false,
+      },
+    ]);
+  }
+
   private buildTextMsg(
     target: SendTarget,
     text: string,
